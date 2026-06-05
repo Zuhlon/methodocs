@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LD2 + Dynamic Artifacts — Интегрированная методология</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            line-height: 1.7;
+            color: #1a1a2e;
+            background: #f8f9fa;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Cover Page */
+        .cover {
+            text-align: center;
+            padding: 80px 40px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            border-radius: 20px;
+            margin-bottom: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .cover h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+            letter-spacing: 2px;
+        }
+
+        .cover .subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+        .cover .tagline {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        .cover .version {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            padding: 10px 30px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 30px;
+            display: inline-block;
+        }
+
+        /* Navigation */
+        .toc {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 60px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .toc h2 {
+            color: #1a1a2e;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e94560;
+        }
+
+        .toc ul {
+            list-style: none;
+            columns: 2;
+            column-gap: 40px;
+        }
+
+        .toc li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .toc a {
+            color: #0f3460;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .toc a:hover {
+            color: #e94560;
+        }
+
+        /* Part Headers */
+        .part-header {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: white;
+            padding: 50px 40px;
+            border-radius: 15px;
+            margin: 60px 0 40px;
+            text-align: center;
+        }
+
+        .part-header h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        /* Sections */
+        section {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        section h2 {
+            color: #1a1a2e;
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e94560;
+        }
+
+        section h3 {
+            color: #0f3460;
+            font-size: 1.3rem;
+            margin: 30px 0 15px;
+        }
+
+        section h4 {
+            color: #16213e;
+            font-size: 1.1rem;
+            margin: 25px 0 12px;
+        }
+
+        section p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        /* Code Blocks */
+        pre {
+            background: #1a1a2e;
+            color: #e0e0e0;
+            padding: 25px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+
+        code {
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #e94560;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tr:hover {
+            background: #f0f4ff;
+        }
+
+        /* Diagram Boxes */
+        .diagram {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 25px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            overflow-x: auto;
+            white-space: pre;
+            color: #1a1a2e;
+        }
+
+        .diagram-caption {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Callout Boxes */
+        .callout {
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+        }
+
+        .callout-info {
+            background: #e8f4fd;
+            border-left: 4px solid #0f3460;
+        }
+
+        .callout-warning {
+            background: #fff3e0;
+            border-left: 4px solid #e94560;
+        }
+
+        .callout-success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+
+        .callout-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1a1a2e;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        /* Strong text */
+        strong {
+            color: #e94560;
+        }
+
+        /* Prompt Box */
+        .prompt-box {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #e94560;
+        }
+
+        .prompt-box p {
+            color: white;
+            margin: 0;
+        }
+
+        /* Appendix */
+        .appendix {
+            background: #fafafa;
+            border: 2px dashed #ccc;
+        }
+
+        .appendix h2 {
+            border-bottom-color: #666;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 60px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 15px;
+            }
+
+            .cover {
+                padding: 50px 25px;
+            }
+
+            .cover h1 {
+                font-size: 2rem;
+            }
+
+            .cover .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .toc ul {
+                columns: 1;
+            }
+
+            section {
+                padding: 25px;
+            }
+
+            .diagram {
+                font-size: 0.75rem;
+                padding: 15px;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 8px 6px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .cover {
+                background: #1a1a2e;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            section, .toc, .part-header {
+                box-shadow: none;
+                break-inside: avoid;
+            }
+
+            .diagram {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Cover Page -->
+<div class="cover">
+    <h1>ИНТЕГРИРОВАННАЯ МЕТОДОЛОГИЯ</h1>
+    <div class="subtitle">LD2 + Dynamic Artifacts</div>
+    <div class="tagline">Предиктивная система лояльности на основе динамических артефактов. Объединение стратегической методологии лояльности с технической методологией предиктивного анализа.</div>
+    <div class="version">Версия 1.0 | 2025</div>
+</div>
+
+<!-- Table of Contents -->
+<div class="toc">
+    <h2>Содержание</h2>
+    <ul>
+        <li><a href="#part1">ЧАСТЬ I. ТЕОРЕТИЧЕСКИЕ ОСНОВЫ</a></li>
+        <li><a href="#section1">1. Введение: две методологии — одна цель</a></li>
+        <li><a href="#section2">2. Архитектура интеграции</a></li>
+        <li><a href="#part2">ЧАСТЬ II. ТЕХНИЧЕСКАЯ РЕАЛИЗАЦИЯ</a></li>
+        <li><a href="#section3">3. Этап 1: Сбор и подготовка данных</a></li>
+        <li><a href="#section4">4. Этап 2: Кластеризация и маппинг</a></li>
+        <li><a href="#section5">5. Этап 3: Извлечение правил</a></li>
+        <li><a href="#section6">6. Этап 4: Предиктивный Score</a></li>
+        <li><a href="#part3">ЧАСТЬ III. ПРИМЕНЕНИЕ</a></li>
+        <li><a href="#section7">7. Динамические персоны ядра</a></li>
+        <li><a href="#section8">8. Живые CJM по сегментам</a></li>
+        <li><a href="#section9">9. Система метрик и дашборд</a></li>
+        <li><a href="#section10">10. Риски и митигация</a></li>
+        <li><a href="#part4">ЧАСТЬ IV. СРАВНЕНИЕ ПОДХОДОВ</a></li>
+        <li><a href="#section11">11. Статические vs Динамические артефакты</a></li>
+        <li><a href="#section12">12. Заключение: практические шаги</a></li>
+        <li><a href="#appendix">ПРИЛОЖЕНИЯ</a></li>
+    </ul>
+</div>
+
+<!-- PART I -->
+<div class="part-header" id="part1">
+    <h2>ЧАСТЬ I. ТЕОРЕТИЧЕСКИЕ ОСНОВЫ</h2>
+</div>
+
+<!-- Section 1 -->
+<section id="section1">
+    <h2>1. Введение: две методологии — одна цель</h2>
+    
+    <p>Современная продуктовая разработка стоит перед фундаментальным вызовом: как в мире бесконечного потока данных о пользователях принимать решения, которые ведут к устойчивому росту, а не к бесконечной гонке за метриками? Два независимых подхода предлагают разные ответы на этот вопрос, и их интеграция создаёт синергетический эффект.</p>
+    
+    <p><strong>LD2 (Loyalty-Driven Product Design)</strong> предлагает стратегический фокус на выращивании лояльного ядра аудитории вместо попыток удовлетворить всех пользователей. Динамические артефакты предлагают техническую инфраструктуру для замены статических документов (персон, CJM, User Flow) на самообновляемые предиктивные модели. Вместе они создают систему, которая не только идентифицирует лояльных пользователей, но и прогнозирует их поведение в реальном времени.</p>
+    
+    <h3>1.1. Проблема статических артефактов</h3>
+    
+    <p>Персона, созданная в январе, устаревает к марту. Карта путешествия клиента, актуальная вчера, уже не отражает реальность сегодня. Средняя стоимость создания качественной персоны — 40-80 часов работы UX-исследователя, а CJM — ещё 60-100 часов. Эти документы нельзя спросить, нельзя обновить в реальном времени, они лежат мёртвым грузом в корпоративных архивах.</p>
+    
+    <div class="callout callout-warning">
+        <div class="callout-title">Ключевой недостаток</div>
+        <p>Статические артефакты документируют момент, но мир не стоит на месте. Пользователи меняют поведение, продукт эволюционирует, рынок трансформируется. Разрыв между артефактом и реальностью растёт экспоненциально.</p>
+    </div>
+    
+    <h3>1.2. Проблема реактивного дизайн-мышления</h3>
+    
+    <p>Классическое дизайн-мышление строится на эмпатии к пользователю и решении его проблем. Однако на практике это часто вырождается в реактивную модель: команда фокусируется на «pain points» тех, кто уже выражает недовольство, пытаясь «вернуть» утраченную лояльность. Это приводит к фрагментации продукта и размыванию идентичности.</p>
+    
+    <p>LD2 предлагает альтернативу: вместо того чтобы подстраиваться под всех, продукт культивирует глубокую лояльность у тех, кто разделяет его ценности. Но для этого нужны инструменты, которые работают в реальном времени.</p>
+</section>
+
+<!-- Section 2 -->
+<section id="section2">
+    <h2>2. Архитектура интеграции</h2>
+    
+    <p>Интеграция LD2 и динамических артефактов создаёт замкнутую систему: стратегия лояльности определяет, какие пользователи важны, а динамические артефакты предоставляют инструменты для их идентификации, анализа и прогнозирования поведения.</p>
+    
+    <div class="diagram">
+┌─────────────────────────────────────────────────────────────────┐
+│                    АРХИТЕКТУРА ИНТЕГРАЦИИ                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│    ┌──────────────┐         ┌──────────────────┐               │
+│    │  LD2: Ядро   │ ◄────── │  K-Means         │               │
+│    │  Симпатики   │         │  Кластеризация   │               │
+│    │  Нейтралы    │         │  (поведенческая) │               │
+│    │  Чужые       │         └──────────────────┘               │
+│    └──────────────┘                   │                        │
+│           │                           │                        │
+│           ▼                           ▼                        │
+│    ┌──────────────┐         ┌──────────────────┐               │
+│    │ Предиктивный │ ◄────── │  PrefixSpan      │               │
+│    │ Score        │         │  Правила W→a     │               │
+│    │ Лояльности   │         │  (последователь- │               │
+│    └──────────────┘         │   ности)         │               │
+│           │                 └──────────────────┘               │
+│           ▼                           │                        │
+│    ┌──────────────┐                   │                        │
+│    │ Динамические │                   │                        │
+│    │ Персоны Ядра │ ◄─────────────────┘                        │
+│    │ (AI-агенты)  │                                            │
+│    └──────────────┘                                            │
+│           │                                                    │
+│           ▼                                                    │
+│    ┌──────────────────────────────────────────┐               │
+│    │         Продуктовые решения              │               │
+│    │  • Приоритизация фич                     │               │
+│    │  • Персонализация UI                     │               │
+│    │  • Предиктивные подсказки                │               │
+│    └──────────────────────────────────────────┘               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘</div>
+    <div class="diagram-caption">Рисунок 1. Архитектура интеграции LD2 + Динамические артефакты</div>
+    
+    <h3>2.1. Концептуальное соответствие</h3>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Компонент LD2</th>
+                <th>Динамический артефакт</th>
+                <th>Функция</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Ядро (15-25%)</td>
+                <td>Кластер высокой конверсии</td>
+                <td>Предиктивная персона</td>
+            </tr>
+            <tr>
+                <td>Симпатики</td>
+                <td>Кластер средней вовлечённости</td>
+                <td>Live CJM</td>
+            </tr>
+            <tr>
+                <td>Нейтралы</td>
+                <td>Кластер эпизодического использования</td>
+                <td>Метрики оттока</td>
+            </tr>
+            <tr>
+                <td>Чужые</td>
+                <td>Кластер несоответствия</td>
+                <td>Фильтр для игнорирования</td>
+            </tr>
+            <tr>
+                <td>Правила LD2</td>
+                <td>Правила PrefixSpan</td>
+                <td>Прогноз поведения</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- PART II -->
+<div class="part-header" id="part2">
+    <h2>ЧАСТЬ II. ТЕХНИЧЕСКАЯ РЕАЛИЗАЦИЯ</h2>
+</div>
+
+<!-- Section 3 -->
+<section id="section3">
+    <h2>3. Этап 1: Сбор и подготовка данных</h2>
+    
+    <h3>3.1. Источники данных</h3>
+    
+    <p>Интегрированная система требует данных о поведении пользователей. Основные источники включают: Logs API аналитических систем (Яндекс.Метрика, Google Analytics, Amplitude), записи сессий (Hotjar, FullStory), обращения в поддержку, транзакционные данные.</p>
+    
+    <div class="callout callout-info">
+        <div class="callout-title">Требования к объёму данных</div>
+        <p>Минимальный объём для устойчивой кластеризации — <strong>10,000 визитов</strong>, рекомендовано <strong>50,000+</strong>.</p>
+    </div>
+    
+    <h3>3.2. Структура данных визита</h3>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Поле</th>
+                <th>Тип</th>
+                <th>Описание</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>visit_id</code></td>
+                <td>string</td>
+                <td>Уникальный идентификатор визита</td>
+            </tr>
+            <tr>
+                <td><code>user_id</code></td>
+                <td>string</td>
+                <td>Идентификатор пользователя (если авторизован)</td>
+            </tr>
+            <tr>
+                <td><code>timestamp</code></td>
+                <td>datetime</td>
+                <td>Время начала визита</td>
+            </tr>
+            <tr>
+                <td><code>page_views</code></td>
+                <td>int</td>
+                <td>Количество просмотренных страниц</td>
+            </tr>
+            <tr>
+                <td><code>duration_sec</code></td>
+                <td>int</td>
+                <td>Длительность визита в секундах</td>
+            </tr>
+            <tr>
+                <td><code>sequence</code></td>
+                <td>array</td>
+                <td>Массив страниц/экранов в порядке посещения</td>
+            </tr>
+            <tr>
+                <td><code>traffic_source</code></td>
+                <td>string</td>
+                <td>Канал привлечения</td>
+            </tr>
+            <tr>
+                <td><code>goal_completions</code></td>
+                <td>int</td>
+                <td>Количество достигнутых целей</td>
+            </tr>
+            <tr>
+                <td><code>device_category</code></td>
+                <td>string</td>
+                <td>Десктоп/мобайл/таблет</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Section 4 -->
+<section id="section4">
+    <h2>4. Этап 2: Кластеризация и маппинг на сегменты LD2</h2>
+    
+    <p>Ключевой инновацией интегрированной методологии является маппинг поведенческих кластеров на сегменты LD2. Вместо абстрактных кластеров, получаем автоматическую идентификацию ядра, симпатиков, нейтралов и чужих.</p>
+    
+    <h3>4.1. Алгоритм кластеризации</h3>
+    
+    <p>Используется K-Means с предварительной нормализацией признаков. Признаки включают: активность (page_views, duration_sec, visit_frequency), конверсионность (goal_completions, has_conversion), канальность (traffic_source, utm_source), технические (device_category, browser), временные (hour_of_day, day_of_week). Число кластеров K определяется методом локтя или silhouette score, на практике 4-7 кластеров.</p>
+    
+    <h3>4.2. Маппинг кластеров на сегменты LD2</h3>
+    
+    <p>После кластеризации каждый кластер получает метку сегмента LD2 на основе поведенческих характеристик:</p>
+    
+    <ul>
+        <li><strong>Кластеры с высокой конверсией, частыми визитами и глубокой вовлечённостью</strong> → Ядро</li>
+        <li><strong>Кластеры со средней вовлечённостью, но без устойчивой привязанности</strong> → Симпатики</li>
+        <li><strong>Кластеры с низкой вовлечённостью и эпизодическими визитами</strong> → Нейтралы</li>
+        <li><strong>Кластеры с минимальной вовлечённостью и несоответствием ценностям</strong> → Чужые</li>
+    </ul>
+    
+    <div class="diagram">
+┌────────────────────────────────────────────────────────────────┐
+│        МАППИНГ ПОВЕДЕНЧЕСКИХ КЛАСТЕРОВ НА LD2                  │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│   ВЫСОКАЯ КОНВЕРСИЯ                                           │
+│        ▲                                                       │
+│        │   ┌─────────┐                                         │
+│        │   │  ЯДРО   │ ← Кластер с confidence ≥ 0.85          │
+│        │   │  15-25% │   Высокая частота, глубокое вовлечение  │
+│        │   └─────────┘                                         │
+│        │                                                       │
+│        │   ┌─────────────┐                                     │
+│        │   │ СИМПАТИКИ   │ ← Кластер с confidence 0.60-0.75   │
+│        │   │   25-35%    │   Среднее вовлечение, потенциал    │
+│        │   └─────────────┘                                     │
+│        │                                                       │
+│        │   ┌─────────────┐                                     │
+│        │   │  НЕЙТРАЛЫ   │ ← Кластер с confidence 0.40-0.60   │
+│        │   │   30-40%    │   Эпизодическое использование      │
+│        │   └─────────────┘                                     │
+│        │                                                       │
+│        │   ┌─────────────┐                                     │
+│        │   │   ЧУЖЫЕ     │ ← Кластер с confidence < 0.40      │
+│        │   │   10-20%    │   Несоответствие ценностям         │
+│        │   └─────────────┘                                     │
+│        │                                                       │
+│        └──────────────────────────────────────▶ НИЗКАЯ         │
+│                                               КОНВЕРСИЯ        │
+└────────────────────────────────────────────────────────────────┘</div>
+    <div class="diagram-caption">Рисунок 2. Маппинг поведенческих кластеров на сегменты LD2</div>
+    
+    <h3>4.3. Пример интерпретации кластеров</h3>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Кластер</th>
+                <th>Размер</th>
+                <th>Avg Page Views</th>
+                <th>Avg Duration</th>
+                <th>Conv. Rate</th>
+                <th>LD2 Сегмент</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>C0</td>
+                <td>18%</td>
+                <td>12.4</td>
+                <td>480 сек</td>
+                <td>8.2%</td>
+                <td><strong>Ядро</strong></td>
+            </tr>
+            <tr>
+                <td>C1</td>
+                <td>28%</td>
+                <td>6.1</td>
+                <td>210 сек</td>
+                <td>2.1%</td>
+                <td>Симпатики</td>
+            </tr>
+            <tr>
+                <td>C2</td>
+                <td>34%</td>
+                <td>2.8</td>
+                <td>90 сек</td>
+                <td>0.4%</td>
+                <td>Нейтралы</td>
+            </tr>
+            <tr>
+                <td>C3</td>
+                <td>12%</td>
+                <td>1.5</td>
+                <td>45 сек</td>
+                <td>0.1%</td>
+                <td>Чужые</td>
+            </tr>
+            <tr>
+                <td>C4</td>
+                <td>8%</td>
+                <td>8.2</td>
+                <td>340 сек</td>
+                <td>3.5%</td>
+                <td>Симпатики</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Section 5 -->
+<section id="section5">
+    <h2>5. Этап 3: Извлечение правил и предиктивная система</h2>
+    
+    <h3>5.1. Алгоритм PrefixSpan</h3>
+    
+    <p>Для каждого сегмента LD2 извлекаются частые последовательности действий с помощью алгоритма PrefixSpan. Параметры: min_support = 0.03-0.05, max_pattern_length = 5-7 действий. Результат: набор правил вида W → a, где W — последовательность действий, a — следующее действие, с метриками support и confidence.</p>
+    
+    <h3>5.2. Правила по сегментам LD2</h3>
+    
+    <div class="diagram">
+┌─────────────────────────────────────────────────────────────────┐
+│           ПРАВИЛА PREFIXSPAN ПО СЕГМЕНТАМ LD2                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ЯДРО (confidence: 0.85-0.95)                                  │
+│  ─────────────────────────────                                  │
+│  [catalog → product → cart] → checkout     conf: 0.92          │
+│  [favorites → cart] → purchase             conf: 0.88          │
+│  [profile → orders] → review               conf: 0.85          │
+│                                                                 │
+│  СИМПАТИКИ (confidence: 0.60-0.75)                             │
+│  ────────────────────────────────                               │
+│  [catalog → product] → cart                conf: 0.72          │
+│  [search → product] → favorites            conf: 0.65          │
+│  [home → catalog] → filter_apply           conf: 0.61          │
+│                                                                 │
+│  НЕЙТРАЛЫ (confidence: 0.40-0.60)                              │
+│  ───────────────────────────────                                │
+│  [home → catalog] → product                conf: 0.52          │
+│  [search] → product_view                   conf: 0.45          │
+│  [landing] → bounce                        conf: 0.48          │
+│                                                                 │
+│  ЧУЖЫЕ (confidence: 0.30-0.45)                                 │
+│  ─────────────────────────                                      │
+│  [landing → exit]                          conf: 0.42          │
+│  [popup_close] → exit                      conf: 0.38          │
+│  [price_page] → competitor_search          conf: 0.35          │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘</div>
+    <div class="diagram-caption">Рисунок 3. Правила PrefixSpan по сегментам LD2</div>
+    
+    <div class="callout callout-info">
+        <div class="callout-title">Ключевое наблюдение</div>
+        <p>Правила для ядра имеют значительно более высокую confidence (0.85-0.95), чем для других сегментов. Это отражает устойчивость и предсказуемость поведения лояльных пользователей. Симпатики показывают среднюю confidence (0.60-0.75), что указывает на вариативность их поведения. Нейтралы и чужие демонстрируют низкую confidence (0.40-0.60), что делает прогнозирование для них менее надёжным.</p>
+    </div>
+    
+    <h3>5.3. Предиктивный API</h3>
+    
+    <p>Предиктивный сервис получает на вход:</p>
+    <ul>
+        <li><strong>user_id</strong> (опционально)</li>
+        <li><strong>current_sequence</strong> — массив действий пользователя в текущем визите</li>
+        <li><strong>context</strong> — признаки визита</li>
+    </ul>
+    
+    <p>Возвращает:</p>
+    <ul>
+        <li><strong>predicted_next_action</strong> — следующее действие</li>
+        <li><strong>confidence</strong> — уверенность</li>
+        <li><strong>loyalty_segment</strong> — сегмент LD2</li>
+        <li><strong>suggested_ui</strong> — текст подсказки для интерфейса</li>
+    </ul>
+</section>
+
+<!-- Section 6 -->
+<section id="section6">
+    <h2>6. Этап 4: Предиктивный Score лояльности</h2>
+    
+    <p>Интегрированная система вводит понятие «Предиктивный Score лояльности» — композитный показатель, который прогнозирует вероятность того, что пользователь принадлежит к ядру и останется лояльным.</p>
+    
+    <h3>6.1. Формула Score</h3>
+    
+    <pre><code>LoyaltyScore = w1 × ClusterScore + w2 × BehaviorScore + w3 × RuleConfidence
+
+где:
+  ClusterScore    — вероятность принадлежности к кластеру ядра
+  BehaviorScore   — соответствие поведения паттернам ядра
+  RuleConfidence  — уверенность предсказания следующего действия
+
+Типичные веса: w1=0.4, w2=0.35, w3=0.25</code></pre>
+    
+    <div class="diagram">
+┌─────────────────────────────────────────────────────────────────┐
+│         ПРЕДИКТИВНЫЙ SCORE ЛОЯЛЬНОСТИ ПО ТИПАМ ДЕЙСТВИЙ        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1.0 ┤                                                         │
+│      │   ████                                                  │
+│  0.8 ┤   ████  ████                                            │
+│      │   ████  ████  ████                                      │
+│  0.6 ┤   ████  ████  ████  ████                                │
+│      │   ████  ████  ████  ████  ████                          │
+│  0.4 ┤   ████  ████  ████  ████  ████  ████                    │
+│      │   ████  ████  ████  ████  ████  ████  ████              │
+│  0.2 ┤   ████  ████  ████  ████  ████  ████  ████  ████        │
+│      │   ████  ████  ████  ████  ████  ████  ████  ████  ████  │
+│  0.0 ┼───────────────────────────────────────────────────────── │
+│      │   [→cart] [→fav] [→rev] [→share] [→sup] [→exit] [bounce]│
+│                                                                 │
+│      ████ Ядро     ░░░░ Симпатики     ▒▒▒▒ Нейтралы           │
+└─────────────────────────────────────────────────────────────────┘</div>
+    <div class="diagram-caption">Рисунок 4. Предиктивный Score лояльности по типам действий</div>
+    
+    <h3>6.2. Пороговые значения</h3>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Score</th>
+                <th>Сегмент</th>
+                <th>Действие продукта</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>≥ 0.70</strong></td>
+                <td>Ядро</td>
+                <td>Премиум-фичи, реферальная программа, VIP-поддержка</td>
+            </tr>
+            <tr>
+                <td><strong>0.50-0.69</strong></td>
+                <td>Симпатики</td>
+                <td>Онбординг, персонализация, триал премиум</td>
+            </tr>
+            <tr>
+                <td><strong>0.30-0.49</strong></td>
+                <td>Нейтралы</td>
+                <td>Базовая функциональность, минимум инвестиций</td>
+            </tr>
+            <tr>
+                <td><strong>&lt; 0.30</strong></td>
+                <td>Чужые</td>
+                <td>Игнорировать, не тратить ресурсы</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- PART III -->
+<div class="part-header" id="part3">
+    <h2>ЧАСТЬ III. ПРИМЕНЕНИЕ</h2>
+</div>
+
+<!-- Section 7 -->
+<section id="section7">
+    <h2>7. Динамические персоны ядра</h2>
+    
+    <p>Вместо статической персоны в PDF, интегрированная методология создаёт динамического AI-агента, обученного на данных реальных пользователей из ядра. Вы можете спросить: «Что ядро думает о новой функции?» — и получить ответ, основанный на поведенческих паттернах, а не на предположениях.</p>
+    
+    <h3>7.1. Шаблон промпта для AI-ассистента</h3>
+    
+    <div class="prompt-box">
+        <p><strong>Промпт для создания AI-ассистента ядра:</strong></p>
+        <p>«Ты — представитель ядра аудитории продукта [Название]. Твоя база знаний включает:<br>
+        1) Поведенческие паттерны кластера ядра (данные за 6 месяцев)<br>
+        2) Типовые последовательности действий с confidence ≥ 0.8<br>
+        3) 500+ отзывов от пользователей с LoyaltyScore ≥ 0.7<br>
+        4) История успешных конверсий<br><br>
+        Твоя задача — отвечать на вопросы продуктовой команды от лица ядра, прогнозировать реакцию на изменения и предлагать приоритеты развития. Отвечай в первом лице, отражая ценности и поведение ядра.»</p>
+    </div>
+    
+    <h3>7.2. Примеры вопросов к AI-ассистенту ядра</h3>
+    
+    <ul>
+        <li><strong>«Как ядро отреагирует на изменение навигации в каталоге?»</strong> — прогноз реакции на основе паттернов</li>
+        <li><strong>«Какие три функции наиболее важны для нас?»</strong> — приоритизация на основе поведения</li>
+        <li><strong>«Что может заставить нас уйти к конкуренту?»</strong> — ранние сигналы оттока</li>
+        <li><strong>«Предложи два улучшения, которые увеличат нашу вовлечённость»</strong> — проактивные идеи</li>
+    </ul>
+</section>
+
+<!-- Section 8 -->
+<section id="section8">
+    <h2>8. Живые CJM по сегментам</h2>
+    
+    <p>Вместо статической карты путешествия клиента, интегрированная система создаёт живые CJM для каждого сегмента LD2, обновляемые еженедельно на основе реальных данных.</p>
+    
+    <h3>8.1. Структура живого CJM</h3>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Этап</th>
+                <th>Touchpoint</th>
+                <th>Действие ядра</th>
+                <th>Эмоция</th>
+                <th>Возможность</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Осознание</td>
+                <td>Поиск</td>
+                <td>Целевой запрос</td>
+                <td>Уверенность</td>
+                <td>SEO под потребности ядра</td>
+            </tr>
+            <tr>
+                <td>Рассмотрение</td>
+                <td>Каталог</td>
+                <td>Глубокий просмотр</td>
+                <td>Интерес</td>
+                <td>Умные фильтры</td>
+            </tr>
+            <tr>
+                <td>Решение</td>
+                <td>Cart</td>
+                <td>Быстрый checkout</td>
+                <td>Удовлетворение</td>
+                <td>One-click purchase</td>
+            </tr>
+            <tr>
+                <td>Использование</td>
+                <td>Product</td>
+                <td>Регулярное использование</td>
+                <td>Радость</td>
+                <td>Loyalty program</td>
+            </tr>
+            <tr>
+                <td>Лояльность</td>
+                <td>Referral</td>
+                <td>Активное рекомендации</td>
+                <td>Гордость</td>
+                <td>Реферальные бонусы</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Section 9 -->
+<section id="section9">
+    <h2>9. Система метрик и дашборд</h2>
+    
+    <h3>9.1. Метрики качества предиктивной системы</h3>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Метрика</th>
+                <th>Формула</th>
+                <th>Целевое значение</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Prediction Accuracy</td>
+                <td>correct_predictions / total_predictions</td>
+                <td>≥ 0.65</td>
+            </tr>
+            <tr>
+                <td>Cluster Stability</td>
+                <td>% users in same cluster after 30 days</td>
+                <td>≥ 0.80</td>
+            </tr>
+            <tr>
+                <td>Rule Confidence Avg</td>
+                <td>avg(confidence) for active rules</td>
+                <td>≥ 0.70</td>
+            </tr>
+            <tr>
+                <td>False Positive Rate</td>
+                <td>wrong_high_loyalty_predictions / total_high_predictions</td>
+                <td>≤ 0.15</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h3>9.2. Бизнес-метрики LD2</h3>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Метрика</th>
+                <th>Описание</th>
+                <th>Частота отслеживания</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Размер ядра</td>
+                <td>% пользователей с LoyaltyScore ≥ 0.70</td>
+                <td>Еженедельно</td>
+            </tr>
+            <tr>
+                <td>LTV ядра / LTV средний</td>
+                <td>Коэффициент ценности ядра</td>
+                <td>Ежемесячно</td>
+            </tr>
+            <tr>
+                <td>Конверсия симпатиков → ядро</td>
+                <td>% переходов за квартал</td>
+                <td>Ежеквартально</td>
+            </tr>
+            <tr>
+                <td>NPS ядра</td>
+                <td>Net Promoter Score ядра</td>
+                <td>Ежемесячно</td>
+            </tr>
+            <tr>
+                <td>Retention ядра D30</td>
+                <td>Удержание ядра на 30 день</td>
+                <td>Еженедельно</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Section 10 -->
+<section id="section10">
+    <h2>10. Риски и митигация</h2>
+    
+    <div class="diagram">
+┌─────────────────────────────────────────────────────────────────┐
+│             МАТРИЦА РИСКОВ ИНТЕГРИРОВАННОЙ МЕТОДОЛОГИИ         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ВЛИЯНИЕ                                                        │
+│    ▲                                                            │
+│    │                                                            │
+│ ВЫ │  ┌─────────────────────┐    ┌─────────────────────┐       │
+│ СО │  │ Переобучение на     │    │ Эхо-камера          │       │
+│ КО │  │ исторических данных │    │ изоляции            │       │
+│ Е  │  │ Риск: Высокий       │    │ Риск: Критический   │       │
+│    │  │ Вероятность: Средн. │    │ Вероятность: Средн. │       │
+│    │  └─────────────────────┘    └─────────────────────┘       │
+│    │                                                            │
+│ СР │  ┌─────────────────────┐    ┌─────────────────────┐       │
+│ ЕД │  │ Холодный старт      │    │ Слепое доверие      │       │
+│ НЕ │  │ для новых           │    │ AI                  │       │
+│ Е  │  │ пользователей       │    │ Риск: Средний       │       │
+│    │  │ Риск: Средний       │    │ Вероятность: Высок. │       │
+│    │  │ Вероятность: Высок. │    │                     │       │
+│    │  └─────────────────────┘    └─────────────────────┘       │
+│    │                                                            │
+│ НИ │  ┌─────────────────────┐    ┌─────────────────────┐       │
+│ ЗК │  │ Техническая         │    │ Смещение в данных   │       │
+│ О  │  │ сложность           │    │ Риск: Низкий        │       │
+│ Е  │  │ Риск: Низкий        │    │ Вероятность: Средн. │       │
+│    │  │ Вероятность: Средн. │    │                     │       │
+│    │  └─────────────────────┘    └─────────────────────┘       │
+│    │                                                            │
+│    └────────────────────────────────────▶ ВЕРОЯТНОСТЬ          │
+│                         НИЗКАЯ              СРЕДНЯЯ    ВЫСОКАЯ  │
+└─────────────────────────────────────────────────────────────────┘</div>
+    <div class="diagram-caption">Рисунок 5. Матрица рисков интегрированной методологии</div>
+    
+    <h3>Риск 1: Переобучение на исторических данных</h3>
+    
+    <div class="callout callout-warning">
+        <div class="callout-title">Описание</div>
+        <p>Правила работают на старых данных, но не на новых. После изменения продукта или рынка предиктор теряет точность.</p>
+    </div>
+    
+    <p><strong>Техники митигации:</strong></p>
+    <ul>
+        <li>Еженедельный пересчёт на скользящем окне (последние 30-60 дней)</li>
+        <li>Валидация на hold-out выборке</li>
+        <li>Автоматический алерт при падении accuracy ниже 0.55</li>
+        <li>Быстрый пересчёт (1-2 дня) после крупных релизов</li>
+    </ul>
+    
+    <h3>Риск 2: Эхо-камера изоляции</h3>
+    
+    <div class="callout callout-warning">
+        <div class="callout-title">Описание</div>
+        <p>Фокус только на ядре приводит к потере связи с рынком и emerging trends. Продукт удовлетворяет только внутреннюю аудиторию, игнорируя внешние изменения.</p>
+    </div>
+    
+    <p><strong>Техники митигации:</strong></p>
+    <ul>
+        <li><strong>Периферийное сканирование</strong> — 15-20% ресурсов на мониторинг emerging trends, даже если ядро их не запрашивает</li>
+        <li><strong>«Адвокат дьявола»</strong> — назначить члена команды, который систематически оспаривает решения с позиции «что, если ядро ошибается?»</li>
+        <li><strong>Горизонтальные интервью</strong> — регулярно опрашивать не-пользователей и бывших пользователей для понимания рынка</li>
+        <li><strong>Cross-pollination</strong> — изучать смежные индустрии и их инновации</li>
+    </ul>
+    
+    <h3>Риск 3: Холодный старт для новых пользователей</h3>
+    
+    <div class="callout callout-warning">
+        <div class="callout-title">Описание</div>
+        <p>Для новых пользователей нет истории поведения, невозможно определить сегмент LD2.</p>
+    </div>
+    
+    <p><strong>Техники митигации:</strong></p>
+    <ul>
+        <li>Использовать fallback-правила на основе глобальных паттернов</li>
+        <li>Определять сегмент по контексту (источник, устройство, первый action)</li>
+        <li>Применять epsilon-greedy exploration — 10% запросов получают случайное действие для сбора данных</li>
+    </ul>
+    
+    <h3>Риск 4: Слепое доверие AI</h3>
+    
+    <div class="callout callout-warning">
+        <div class="callout-title">Описание</div>
+        <p>«AI сказал, значит, так и есть» — команда перестаёт критически оценивать рекомендации.</p>
+    </div>
+    
+    <p><strong>Техники митигации:</strong></p>
+    <ul>
+        <li>AI — инструмент, а не оракул. Все рекомендации нужно проверять через A/B-тесты</li>
+        <li>Ручная валидация критических решений</li>
+        <li>Регулярные калибровочные сессии команды с разбором ошибок предиктора</li>
+    </ul>
+</section>
+
+<!-- PART IV -->
+<div class="part-header" id="part4">
+    <h2>ЧАСТЬ IV. СРАВНЕНИЕ ПОДХОДОВ</h2>
+</div>
+
+<!-- Section 11 -->
+<section id="section11">
+    <h2>11. Статические vs Динамические артефакты</h2>
+    
+    <div class="diagram">
+┌─────────────────────────────────────────────────────────────────┐
+│        СРАВНЕНИЕ СТАТИЧЕСКИХ И ДИНАМИЧЕСКИХ АРТЕФАКТОВ         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  СТАТИЧЕСКИЕ АРТЕФАКТЫ          ДИНАМИЧЕСКИЕ АРТЕФАКТЫ         │
+│  ─────────────────────────      ─────────────────────────       │
+│                                                                 │
+│  ┌─────────────────┐            ┌─────────────────┐            │
+│  │     ПЕРСОНА     │            │   AI-АССИСТЕНТ  │            │
+│  │   (PDF, 50ч)    │     →      │   (Live API)    │            │
+│  │   Устаревает    │            │   Обновляется   │            │
+│  └─────────────────┘            └─────────────────┘            │
+│                                                                 │
+│  ┌─────────────────┐            ┌─────────────────┐            │
+│  │      CJM        │            │   LIVE CJM      │            │
+│  │   (Miro, 80ч)   │     →      │  (Auto-update)  │            │
+│  │   Статична      │            │   Реальное время│            │
+│  └─────────────────┘            └─────────────────┘            │
+│                                                                 │
+│  ┌─────────────────┐            ┌─────────────────┐            │
+│  │   USER FLOW     │            │   ПРЕДИКТИВНЫЙ  │            │
+│  │   (Figma, 40ч)  │     →      │      FLOW       │            │
+│  │   Фиксирован    │            │   Адаптивен     │            │
+│  └─────────────────┘            └─────────────────┘            │
+│                                                                 │
+│  Время создания: 150-200ч       Время создания: 40-60ч + API   │
+│  Обновление: Ручное             Обновление: Автоматическое     │
+│  Точность: Снижается            Точность: Поддерживается       │
+│  Возврат инвестиций: Низкий      Возврат инвестиций: Высокий    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘</div>
+    <div class="diagram-caption">Рисунок 6. Сравнение статических и динамических артефактов</div>
+    
+    <h3>11.1. Сравнительная таблица</h3>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Критерий</th>
+                <th>Статические артефакты</th>
+                <th>Динамические артефакты</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Время создания</td>
+                <td>40-100 часов каждый</td>
+                <td>20-40 часов + API</td>
+            </tr>
+            <tr>
+                <td>Обновление</td>
+                <td>Ручное, раз в квартал</td>
+                <td>Автоматическое, еженедельно</td>
+            </tr>
+            <tr>
+                <td>Точность</td>
+                <td>Падает со временем</td>
+                <td>Поддерживается автоматически</td>
+            </tr>
+            <tr>
+                <td>Интерактивность</td>
+                <td>Нет</td>
+                <td>AI-диалог, API-запросы</td>
+            </tr>
+            <tr>
+                <td>Стоимость владения</td>
+                <td>Высокая (постоянные апдейты)</td>
+                <td>Средняя (инфраструктура)</td>
+            </tr>
+            <tr>
+                <td>Принятие решений</td>
+                <td>На основе предположений</td>
+                <td>На основе данных</td>
+            </tr>
+            <tr>
+                <td>Масштабируемость</td>
+                <td>Ограничена</td>
+                <td>Высокая</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Section 12 -->
+<section id="section12">
+    <h2>12. Заключение: практические шаги внедрения</h2>
+    
+    <h3>12.1. План внедрения (4 этапа)</h3>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Неделя</th>
+                <th>Этап</th>
+                <th>Деятельность</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>1-2</strong></td>
+                <td>Сбор данных</td>
+                <td>Настроить выгрузку из Яндекс.Метрики/аналитики, собрать минимум 10,000 визитов, подготовить ETL-процесс</td>
+            </tr>
+            <tr>
+                <td><strong>3-4</strong></td>
+                <td>Кластеризация и маппинг</td>
+                <td>Провести кластеризацию, определить маппинг на сегменты LD2, валидировать с командой</td>
+            </tr>
+            <tr>
+                <td><strong>5-6</strong></td>
+                <td>Правила и предиктор</td>
+                <td>Извлечь правила PrefixSpan, построить предиктивный API, создать AI-ассистента ядра</td>
+            </tr>
+            <tr>
+                <td><strong>7-8</strong></td>
+                <td>Интеграция и тестирование</td>
+                <td>Интегрировать с продуктом, провести A/B-тест, настроить дашборд метрик</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h3>12.2. Ключевые инсайты</h3>
+    
+    <p>Интеграция LD2 и динамических артефактов создаёт синергетический эффект: стратегическая методология лояльности получает техническую инфраструктуру для операционализации, а техническая методология предиктивного анализа получает стратегический фокус на выращивании ядра. Вместе они заменяют статические документы на живые, самообновляемые модели, которые не только описывают поведение, но и прогнозируют его.</p>
+    
+    <div class="callout callout-success">
+        <div class="callout-title">Главный принцип интеграции</div>
+        <p>Вместо того чтобы создавать артефакты о пользователях, — создавайте системы, которые понимают пользователей в реальном времени и помогают им на пути к ценности. Лояльность — это не побочный эффект, а сознательно выращиваемый актив, и интегрированная методология предоставляет инструменты для этого выращивания.</p>
+    </div>
+</section>
+
+<!-- APPENDICES -->
+<div class="part-header" id="appendix">
+    <h2>ПРИЛОЖЕНИЯ</h2>
+</div>
+
+<section class="appendix">
+    <h2>Приложение A: SQL-запрос для выгрузки данных</h2>
+    
+    <pre><code>-- Агрегация визитов с последовательностью страниц
+SELECT 
+    VisitID,
+    StartDate,
+    ClientID,
+    StartURL AS EntryPage,
+    EndURL AS ExitPage,
+    PageViews,
+    Duration,
+    TrafficSource.ID AS Source,
+    arrayMap(x -> PageURL, WatchIDs) AS HitSequence
+FROM visits_table
+WHERE StartDate BETWEEN '2025-01-01' AND '2025-01-31'
+GROUP BY VisitID</code></pre>
+</section>
+
+<section class="appendix">
+    <h2>Приложение B: Python-код кластеризации</h2>
+    
+    <pre><code>from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+# Подготовка признаков
+features = df[['page_views', 'duration_sec', 'goal_completions', 'visit_frequency']]
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(features)
+
+# Кластеризация
+kmeans = KMeans(n_clusters=5, random_state=42)
+df['cluster'] = kmeans.fit_predict(X_scaled)
+
+# Маппинг на LD2 сегменты
+segment_map = {0: 'core', 1: 'sympathizers', 2: 'neutral', 3: 'alien', 4: 'sympathizers'}
+df['ld2_segment'] = df['cluster'].map(segment_map)</code></pre>
+</section>
+
+<section class="appendix">
+    <h2>Приложение C: Глоссарий интегрированной методологии</h2>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Термин</th>
+                <th>Определение</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>LD2</strong></td>
+                <td>Loyalty-Driven Product Design — методология проектирования продукта через выращивание лояльного ядра</td>
+            </tr>
+            <tr>
+                <td><strong>Ядро</strong></td>
+                <td>Сегмент пользователей с высоким LoyaltyScore (≥0.70), разделяющих ценности продукта</td>
+            </tr>
+            <tr>
+                <td><strong>Симпатики</strong></td>
+                <td>Сегмент пользователей с потенциалом перехода в ядро, LoyaltyScore 0.50-0.69</td>
+            </tr>
+            <tr>
+                <td><strong>Нейтралы</strong></td>
+                <td>Эпизодические пользователи без устойчивой привязанности</td>
+            </tr>
+            <tr>
+                <td><strong>Чужые</strong></td>
+                <td>Пользователи, не соответствующие ценностям продукта</td>
+            </tr>
+            <tr>
+                <td><strong>Динамический артефакт</strong></td>
+                <td>Самообновляемый документ/модель, основанный на реальных данных</td>
+            </tr>
+            <tr>
+                <td><strong>K-Means</strong></td>
+                <td>Алгоритм кластеризации по поведенческим признакам</td>
+            </tr>
+            <tr>
+                <td><strong>PrefixSpan</strong></td>
+                <td>Алгоритм извлечения частых последовательностей действий</td>
+            </tr>
+            <tr>
+                <td><strong>LoyaltyScore</strong></td>
+                <td>Композитный показатель предсказанной лояльности пользователя</td>
+            </tr>
+            <tr>
+                <td><strong>Confidence</strong></td>
+                <td>Уверенность в предсказании правила или следующего действия</td>
+            </tr>
+            <tr>
+                <td><strong>Support</strong></td>
+                <td>Частота встречаемости паттерна в данных</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Footer -->
+<div class="footer">
+    <p>© 2025 | Интегрированная методология LD2 + Dynamic Artifacts</p>
+</div>
+
+</body>
+</html>
